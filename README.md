@@ -10,8 +10,8 @@ jasmine = require 'jasmine-node'
 Tapreporter = require 'jasmine-tapreporter'
 
 describe "usage of jasmine-tapreporter", ->
-        it "should be okay!", ->
-                expect(true).toBeTruthy()
+  it "should be okay!", ->
+    expect(true).toBeTruthy()
 
 jasmine.getEnv().addReporter new Tapreporter()
 jasmine.getEnv().execute()
