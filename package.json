@@ -1,0 +1,17 @@
+{
+  "name": "jasmine-tapreporter",
+  "version": "0.0.1",
+  "description": "Jasmine reporter that reports a result in TAP format.",
+  "author": "Koji NAKAMURA <kozy4324@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kozy4324/Jasmine-TAPReporter"
+  },
+  "main" : "./src/tapreporter.js",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://raw.github.com/kozy4324/Jasmine-TAPReporter/master/LICENSE"
+    }
+  ]
+}
