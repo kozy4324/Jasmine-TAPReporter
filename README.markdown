@@ -4,6 +4,8 @@ Jasmine reporter that reports a result in TAP format.
 
 ## Usage
 
+* a.coffee
+
 ```coffeescript
 jasmine = require 'jasmine-node'
 Tapreporter = require 'jasmine-tapreporter'
@@ -17,10 +19,13 @@ jasmine.getEnv().execute()
 ```
 
 ```
+$ coffee a.coffee
 1..1
 ok 1 - usage of jasmine-tapreporter > should be okay!
 ```
 
 ## Install
 
+```
 npm install jasmine-tapreporter
+```
