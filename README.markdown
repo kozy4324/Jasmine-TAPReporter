@@ -4,9 +4,8 @@ Jasmine reporter that reports a result in TAP format.
 
 ## Usage
 
-* a.coffee
-
 ```coffeescript
+# a.coffee
 jasmine = require 'jasmine-node'
 Tapreporter = require 'jasmine-tapreporter'
 
