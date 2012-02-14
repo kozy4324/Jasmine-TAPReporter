@@ -7,13 +7,13 @@ Jasmine reporter that reports a result in TAP format.
 ```coffeescript
 # a.coffee
 jasmine = require 'jasmine-node'
-Tapreporter = require 'jasmine-tapreporter'
+TAPReporter = require 'jasmine-tapreporter'
 
 describe "usage of jasmine-tapreporter", ->
   it "should be okay", ->
     expect(true).toBeTruthy()
 
-jasmine.getEnv().addReporter new Tapreporter console.log
+jasmine.getEnv().addReporter new TAPReporter console.log
 jasmine.getEnv().execute()
 ```
 
