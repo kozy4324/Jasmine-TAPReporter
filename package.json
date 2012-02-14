@@ -1,6 +1,6 @@
 {
   "name": "jasmine-tapreporter",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Jasmine reporter that reports a result in TAP format.",
   "author": "Koji NAKAMURA <kozy4324@gmail.com>",
   "repository": {
