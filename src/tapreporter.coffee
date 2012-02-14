@@ -2,36 +2,35 @@
 ((define) ->
   define [], ->
     class TAPReporter extends jasmine.Reporter
-      constructor: (@oncomplete = (result) -> console.log result) ->
+      constructor: (@print) ->
+        @results_ = []
+        @count = 0
 
+      getResults: -> @results_
+
+      reportRunnerStarting: (runner) ->
       reportRunnerResults: (runner) ->
-        results = []
-        count = 0
-        for suite in runner.suites()
-          for spec in suite.specs()
-            desc = [spec.description]
-            suite = spec.suite
-            while suite?
-              desc.push suite.description
-              suite = suite.parentSuite
-            description = desc.reverse().join ' > '
-
-            count++
-            hasError = false
-            errorMessages = []
-            for result in spec.results().getItems()
-              if result.type is 'expect' and !result.passed()
-                errorMessages.push result.trace.stack or result.message
-                hasError = true
-            if hasError
-              results.push "not ok #{count} - #{description}"
-              results.push '# '+errorMessages.join('\n').replace(/\n/g, '\n# ')
-            else
-              results.push "ok #{count} - #{description}"
-        results.unshift "1..#{count}"
-        setTimeout? =>
-          @oncomplete results.join '\n'
-        , 50
+        plan = "1..#{@count}"
+        @results_.push plan
+        @print? plan
+      reportSuiteResults: (suite) ->
+      reportSpecStarting: (spec) ->
+      reportSpecResults: (spec) ->
+        @count++
+        buf = []
+        if spec.results().passed()
+          buf.push "ok #{@count} - #{spec.getFullName()}"
+        else
+          buf.push "not ok #{@count} - #{spec.getFullName()}"
+          msgs = []
+          for item in spec.results().getItems()
+            if item.type is 'expect' and !item.passed()
+              msgs = msgs.concat item.message.split /\r\n|\r|\n/
+          buf.push "# #{msg}" for msg in msgs
+        for line in buf
+          @results_.push line
+          @print? line
+      log: (str) ->
 
     TAPReporter
 

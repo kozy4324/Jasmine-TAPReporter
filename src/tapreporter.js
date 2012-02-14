@@ -10,54 +10,60 @@
 
         __extends(TAPReporter, _super);
 
-        function TAPReporter(oncomplete) {
-          this.oncomplete = oncomplete != null ? oncomplete : function(result) {
-            return console.log(result);
-          };
+        function TAPReporter(print) {
+          this.print = print;
+          this.results_ = [];
+          this.count = 0;
         }
 
+        TAPReporter.prototype.getResults = function() {
+          return this.results_;
+        };
+
+        TAPReporter.prototype.reportRunnerStarting = function(runner) {};
+
         TAPReporter.prototype.reportRunnerResults = function(runner) {
-          var count, desc, description, errorMessages, hasError, result, results, spec, suite, _i, _j, _k, _len, _len2, _len3, _ref, _ref2, _ref3,
-            _this = this;
-          results = [];
-          count = 0;
-          _ref = runner.suites();
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            suite = _ref[_i];
-            _ref2 = suite.specs();
-            for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
-              spec = _ref2[_j];
-              desc = [spec.description];
-              suite = spec.suite;
-              while (suite != null) {
-                desc.push(suite.description);
-                suite = suite.parentSuite;
-              }
-              description = desc.reverse().join(' > ');
-              count++;
-              hasError = false;
-              errorMessages = [];
-              _ref3 = spec.results().getItems();
-              for (_k = 0, _len3 = _ref3.length; _k < _len3; _k++) {
-                result = _ref3[_k];
-                if (result.type === 'expect' && !result.passed()) {
-                  errorMessages.push(result.trace.stack || result.message);
-                  hasError = true;
-                }
-              }
-              if (hasError) {
-                results.push("not ok " + count + " - " + description);
-                results.push('# ' + errorMessages.join('\n').replace(/\n/g, '\n# '));
-              } else {
-                results.push("ok " + count + " - " + description);
+          var plan;
+          plan = "1.." + this.count;
+          this.results_.push(plan);
+          return typeof this.print === "function" ? this.print(plan) : void 0;
+        };
+
+        TAPReporter.prototype.reportSuiteResults = function(suite) {};
+
+        TAPReporter.prototype.reportSpecStarting = function(spec) {};
+
+        TAPReporter.prototype.reportSpecResults = function(spec) {
+          var buf, item, line, msg, msgs, _i, _j, _k, _len, _len2, _len3, _ref, _results;
+          this.count++;
+          buf = [];
+          if (spec.results().passed()) {
+            buf.push("ok " + this.count + " - " + (spec.getFullName()));
+          } else {
+            buf.push("not ok " + this.count + " - " + (spec.getFullName()));
+            msgs = [];
+            _ref = spec.results().getItems();
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              item = _ref[_i];
+              if (item.type === 'expect' && !item.passed()) {
+                msgs = msgs.concat(item.message.split(/\r\n|\r|\n/));
               }
             }
+            for (_j = 0, _len2 = msgs.length; _j < _len2; _j++) {
+              msg = msgs[_j];
+              buf.push("# " + msg);
+            }
           }
-          results.unshift("1.." + count);
-          return typeof setTimeout === "function" ? setTimeout(function() {
-            return _this.oncomplete(results.join('\n'));
-          }, 50) : void 0;
+          _results = [];
+          for (_k = 0, _len3 = buf.length; _k < _len3; _k++) {
+            line = buf[_k];
+            this.results_.push(line);
+            _results.push(typeof this.print === "function" ? this.print(line) : void 0);
+          }
+          return _results;
         };
+
+        TAPReporter.prototype.log = function(str) {};
 
         return TAPReporter;
 
