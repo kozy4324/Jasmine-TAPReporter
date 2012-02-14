@@ -1,5 +1,5 @@
 jasmine = require 'jasmine-node'
-TAPReporter = require '../src/tapreporter.coffee'
+{TAPReporter, todo, skip} = require '../src/tapreporter.coffee'
 
 describe 'TAPReporter', ->
 
@@ -131,6 +131,135 @@ describe 'TAPReporter', ->
       expect(tapreporter.getResults()[3]).toEqual 'ok 2 - test suite should be ok 2.'
       expect(tapreporter.getResults()[4]).toEqual 'ok 3 - test suite should be ok 3.'
       expect(tapreporter.getResults()[5]).toEqual '1..3'
+
+  describe '.todo', ->
+
+    it 'should mark [TODO DIRECTIVE] on current spec', ->
+      env.describe 'test suite', ->
+        env.it 'should be ok', ->
+        env.it 'should be ok', ->
+          tapreporter.todo 'reason 1'
+          @expect(true).toBeTruthy()
+        env.it 'should be ok', ->
+        env.it 'should be not ok', ->
+          tapreporter.todo 'reason 2'
+          @expect(false).toBeTruthy()
+        env.it 'should be ok', ->
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 7
+      expect(tapreporter.getResults()[0]).toEqual 'ok 1 - test suite should be ok.'
+      expect(tapreporter.getResults()[1]).toEqual 'ok 2 - test suite should be ok. # TODO reason 1'
+      expect(tapreporter.getResults()[2]).toEqual 'ok 3 - test suite should be ok.'
+      expect(tapreporter.getResults()[3]).toEqual 'not ok 4 - test suite should be not ok. # TODO reason 2'
+      expect(tapreporter.getResults()[4]).toEqual '# Expected false to be truthy.'
+      expect(tapreporter.getResults()[5]).toEqual 'ok 5 - test suite should be ok.'
+      expect(tapreporter.getResults()[6]).toEqual '1..5'
+
+    it 'should mark [TODO DIRECTIVE] on current suite', ->
+      env.describe 'test suite 1', ->
+        env.it 'should be ok 1', ->
+      env.describe 'test suite 2', ->
+        tapreporter.todo 'reason', @ # second argument is for test...
+        env.it 'should be ok 1', ->
+        env.it 'should be ok 2', ->
+        env.it 'should be ok 3', ->
+      env.describe 'test suite 3', ->
+        env.it 'should be ok 1', ->
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 6
+      expect(tapreporter.getResults()[0]).toEqual 'ok 1 - test suite 1 should be ok 1.'
+      expect(tapreporter.getResults()[1]).toEqual 'ok 2 - test suite 2 should be ok 1. # TODO reason'
+      expect(tapreporter.getResults()[2]).toEqual 'ok 3 - test suite 2 should be ok 2. # TODO reason'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 4 - test suite 2 should be ok 3. # TODO reason'
+      expect(tapreporter.getResults()[4]).toEqual 'ok 5 - test suite 3 should be ok 1.'
+      expect(tapreporter.getResults()[5]).toEqual '1..5'
+
+    it 'should mark [TODO DIRECTIVE] on nestesd suite', ->
+      env.describe 'test suite 1', ->
+        env.it 'should be ok 1', ->
+      env.describe 'test suite 2', ->
+        tapreporter.todo 'reason', @ # second argument is for test...
+        env.it 'should be ok 1', ->
+        env.describe 'test suite 2 nested', ->
+          env.it 'should be ok 1', ->
+        env.it 'should be ok 2', ->
+      env.describe 'test suite 3', ->
+        env.it 'should be ok 1', ->
+
+      env.execute()
+      results = tapreporter.getResults()
+      expect(results.length).toEqual 6
+      expect(results[0]).toEqual 'ok 1 - test suite 1 should be ok 1.'
+      expect(results[1]).toEqual 'ok 2 - test suite 2 should be ok 1. # TODO reason'
+      expect(results[2]).toEqual 'ok 3 - test suite 2 test suite 2 nested should be ok 1. # TODO reason'
+      expect(results[3]).toEqual 'ok 4 - test suite 2 should be ok 2. # TODO reason'
+      expect(results[4]).toEqual 'ok 5 - test suite 3 should be ok 1.'
+      expect(results[5]).toEqual '1..5'
+
+  describe '.skip', ->
+
+    it 'should mark [SKIP DIRECTIVE] on current spec', ->
+      env.describe 'test suite', ->
+        env.it 'should be ok', ->
+        env.it 'should be ok', ->
+          tapreporter.skip 'reason 1'
+        env.it 'should be ok', ->
+        env.it 'should be not ok', ->
+          tapreporter.skip 'reason 2'
+        env.it 'should be ok', ->
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 6
+      expect(tapreporter.getResults()[0]).toEqual 'ok 1 - test suite should be ok.'
+      expect(tapreporter.getResults()[1]).toEqual 'ok 2 - # SKIP reason 1'
+      expect(tapreporter.getResults()[2]).toEqual 'ok 3 - test suite should be ok.'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 4 - # SKIP reason 2'
+      expect(tapreporter.getResults()[4]).toEqual 'ok 5 - test suite should be ok.'
+      expect(tapreporter.getResults()[5]).toEqual '1..5'
+
+    it 'should mark [SKIP DIRECTIVE] on current suite', ->
+      env.describe 'test suite 1', ->
+        env.it 'should be ok 1', ->
+      env.describe 'test suite 2', ->
+        tapreporter.skip 'reason', @ # second argument is for test...
+        env.it 'should be ok 1', ->
+        env.it 'should be ok 2', ->
+        env.it 'should be ok 3', ->
+      env.describe 'test suite 3', ->
+        env.it 'should be ok 1', ->
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 6
+      expect(tapreporter.getResults()[0]).toEqual 'ok 1 - test suite 1 should be ok 1.'
+      expect(tapreporter.getResults()[1]).toEqual 'ok 2 - # SKIP reason'
+      expect(tapreporter.getResults()[2]).toEqual 'ok 3 - # SKIP reason'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 4 - # SKIP reason'
+      expect(tapreporter.getResults()[4]).toEqual 'ok 5 - test suite 3 should be ok 1.'
+      expect(tapreporter.getResults()[5]).toEqual '1..5'
+
+    it 'should mark [SKIP DIRECTIVE] on nestesd suite', ->
+      env.describe 'test suite 1', ->
+        env.it 'should be ok 1', ->
+      env.describe 'test suite 2', ->
+        tapreporter.skip 'reason', @ # second argument is for test...
+        env.it 'should be ok 1', ->
+        env.describe 'test suite 2 nested', ->
+          env.it 'should be ok 1', ->
+        env.it 'should be ok 2', ->
+      env.describe 'test suite 3', ->
+        env.it 'should be ok 1', ->
+
+      env.execute()
+      results = tapreporter.getResults()
+      expect(results.length).toEqual 6
+      expect(results[0]).toEqual 'ok 1 - test suite 1 should be ok 1.'
+      expect(results[1]).toEqual 'ok 2 - # SKIP reason'
+      expect(results[2]).toEqual 'ok 3 - # SKIP reason'
+      expect(results[3]).toEqual 'ok 4 - # SKIP reason'
+      expect(results[4]).toEqual 'ok 5 - test suite 3 should be ok 1.'
+      expect(results[5]).toEqual '1..5'
 
 jasmine.getEnv().addReporter new TAPReporter console.log
 jasmine.getEnv().execute()
