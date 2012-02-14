@@ -138,11 +138,11 @@ describe 'TAPReporter', ->
       env.describe 'test suite', ->
         env.it 'should be ok', ->
         env.it 'should be ok', ->
-          tapreporter.todo 'reason 1'
+          todo @, 'reason 1'
           @expect(true).toBeTruthy()
         env.it 'should be ok', ->
         env.it 'should be not ok', ->
-          tapreporter.todo 'reason 2'
+          todo @, 'reason 2'
           @expect(false).toBeTruthy()
         env.it 'should be ok', ->
 
@@ -160,7 +160,7 @@ describe 'TAPReporter', ->
       env.describe 'test suite 1', ->
         env.it 'should be ok 1', ->
       env.describe 'test suite 2', ->
-        tapreporter.todo 'reason', @ # second argument is for test...
+        todo @, 'reason'
         env.it 'should be ok 1', ->
         env.it 'should be ok 2', ->
         env.it 'should be ok 3', ->
@@ -180,7 +180,7 @@ describe 'TAPReporter', ->
       env.describe 'test suite 1', ->
         env.it 'should be ok 1', ->
       env.describe 'test suite 2', ->
-        tapreporter.todo 'reason', @ # second argument is for test...
+        todo @, 'reason'
         env.it 'should be ok 1', ->
         env.describe 'test suite 2 nested', ->
           env.it 'should be ok 1', ->
@@ -204,10 +204,10 @@ describe 'TAPReporter', ->
       env.describe 'test suite', ->
         env.it 'should be ok', ->
         env.it 'should be ok', ->
-          tapreporter.skip 'reason 1'
+          skip @, 'reason 1'
         env.it 'should be ok', ->
         env.it 'should be not ok', ->
-          tapreporter.skip 'reason 2'
+          skip @, 'reason 2'
         env.it 'should be ok', ->
 
       env.execute()
@@ -223,7 +223,7 @@ describe 'TAPReporter', ->
       env.describe 'test suite 1', ->
         env.it 'should be ok 1', ->
       env.describe 'test suite 2', ->
-        tapreporter.skip 'reason', @ # second argument is for test...
+        skip @, 'reason'
         env.it 'should be ok 1', ->
         env.it 'should be ok 2', ->
         env.it 'should be ok 3', ->
@@ -243,7 +243,7 @@ describe 'TAPReporter', ->
       env.describe 'test suite 1', ->
         env.it 'should be ok 1', ->
       env.describe 'test suite 2', ->
-        tapreporter.skip 'reason', @ # second argument is for test...
+        skip @, 'reason'
         env.it 'should be ok 1', ->
         env.describe 'test suite 2 nested', ->
           env.it 'should be ok 1', ->
