@@ -23,8 +23,8 @@ describe 'TAPReporter', ->
 
       env.execute()
       expect(tapreporter.getResults().length).toEqual 2
-      expect(tapreporter.getResults()[0]).toEqual "ok 1 - test suite should be ok."
-      expect(tapreporter.getResults()[1]).toEqual "1..1"
+      expect(tapreporter.getResults()[0]).toEqual 'ok 1 - test suite should be ok.'
+      expect(tapreporter.getResults()[1]).toEqual '1..1'
 
   describe '(in failed test case)', ->
 
@@ -35,9 +35,9 @@ describe 'TAPReporter', ->
 
       env.execute()
       expect(tapreporter.getResults().length).toEqual 3
-      expect(tapreporter.getResults()[0]).toEqual "not ok 1 - test suite should be ok."
-      expect(tapreporter.getResults()[1]).toEqual "# Expected false to be truthy."
-      expect(tapreporter.getResults()[2]).toEqual "1..1"
+      expect(tapreporter.getResults()[0]).toEqual 'not ok 1 - test suite should be ok.'
+      expect(tapreporter.getResults()[1]).toEqual '# Expected false to be truthy.'
+      expect(tapreporter.getResults()[2]).toEqual '1..1'
 
 jasmine.getEnv().addReporter new TAPReporter console.log
 jasmine.getEnv().execute()
