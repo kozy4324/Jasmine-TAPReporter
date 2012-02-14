@@ -66,6 +66,8 @@ describe 'TAPReporter', ->
 
       env.execute()
       waits 50
+      jasmine.getEnv().reporter.log 'waits 50 msec...' # message appear immediately
+      # jasmine.log 'waits 50 msec...' # message will appear at reporter.reportSpecResults
       runs ->
         results = tapreporter.getResults()
         expect(results.length).toEqual 14
@@ -83,6 +85,52 @@ describe 'TAPReporter', ->
         expect(results[11]).toEqual 'not ok 5 - waitsFor timeout error message follow this line.'
         expect(results[12]).toEqual '# timeout: timed out after 1 msec waiting for waitsFor timeout'
         expect(results[13]).toEqual '1..5'
+
+  describe '#log', ->
+
+    it 'should add a diagnostic line immediately', ->
+
+      env.describe 'test suite', ->
+        env.it 'should be ok 1', ->
+          @expect(true).toBeTruthy()
+        env.it 'should be ok 2', ->
+          env.reporter.log "log message 1"
+          @expect(true).toBeTruthy()
+          env.reporter.log "log message 2"
+        env.it 'should be ok 3', ->
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 6
+      expect(tapreporter.getResults()[0]).toEqual 'ok 1 - test suite should be ok 1.'
+      expect(tapreporter.getResults()[1]).toEqual '# log message 1'
+      expect(tapreporter.getResults()[2]).toEqual '# log message 2'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 2 - test suite should be ok 2.'
+      expect(tapreporter.getResults()[4]).toEqual 'ok 3 - test suite should be ok 3.'
+      expect(tapreporter.getResults()[5]).toEqual '1..3'
+
+  describe 'jasmine.log (Spec.log)', ->
+
+    it 'should add a diagnostic line', ->
+
+      env.describe 'test suite', ->
+        env.it 'should be ok 1', ->
+          @expect(true).toBeTruthy()
+        env.it 'should be ok 2', ->
+          @log "log message 1"
+          @expect(true).toBeTruthy()
+          @log "log message 2"
+        env.it 'should be ok 3', ->
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 6
+      expect(tapreporter.getResults()[0]).toEqual 'ok 1 - test suite should be ok 1.'
+      expect(tapreporter.getResults()[1]).toEqual '# log message 1'
+      expect(tapreporter.getResults()[2]).toEqual '# log message 2'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 2 - test suite should be ok 2.'
+      expect(tapreporter.getResults()[4]).toEqual 'ok 3 - test suite should be ok 3.'
+      expect(tapreporter.getResults()[5]).toEqual '1..3'
 
 jasmine.getEnv().addReporter new TAPReporter console.log
 jasmine.getEnv().execute()

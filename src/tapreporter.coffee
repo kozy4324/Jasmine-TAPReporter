@@ -18,6 +18,8 @@
       reportSpecResults: (spec) ->
         @count++
         buf = []
+        for item in spec.results().getItems() when item.type is 'log'
+          buf.push "# #{item.values[0]}"
         if spec.results().passed()
           buf.push "ok #{@count} - #{spec.getFullName()}"
         else
@@ -31,6 +33,8 @@
           @results_.push line
           @print? line
       log: (str) ->
+        @results_.push "# #{str}"
+        @print? "# #{str}"
 
     TAPReporter
 
