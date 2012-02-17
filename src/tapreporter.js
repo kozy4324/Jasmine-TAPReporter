@@ -1,7 +1,8 @@
 (function() {
   'use strict';
   var __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
+    __slice = Array.prototype.slice;
 
   (function(define) {
     return define([], function() {
@@ -68,14 +69,20 @@
         };
 
         TAPReporter.prototype.reportSpecResults = function(spec) {
-          var directive, item, items, msg, results, _i, _j, _len, _len2, _results;
+          var directive, item, items, msg, results, _i, _j, _k, _len, _len2, _len3, _ref, _results;
           if (spec.__bailOut) return;
           directive = retrieveTodoDirective(spec);
           results = spec.results();
           items = results.getItems();
           for (_i = 0, _len = items.length; _i < _len; _i++) {
             item = items[_i];
-            if (item.type === 'log') this.putResult("# " + item.values[0]);
+            if (item.type === 'log') {
+              _ref = item.values[0].split(/\r\n|\r|\n/);
+              for (_j = 0, _len2 = _ref.length; _j < _len2; _j++) {
+                msg = _ref[_j];
+                this.putResult("# " + msg);
+              }
+            }
           }
           if (results.skipped) {
             return this.putResult("ok " + (++this.count) + " - # SKIP " + (spec.__skip_reason || ''));
@@ -84,15 +91,15 @@
           } else {
             this.putResult("not ok " + (++this.count) + " - " + (spec.getFullName()) + directive);
             _results = [];
-            for (_j = 0, _len2 = items.length; _j < _len2; _j++) {
-              item = items[_j];
+            for (_k = 0, _len3 = items.length; _k < _len3; _k++) {
+              item = items[_k];
               if (item.type === 'expect' && !item.passed()) {
                 _results.push((function() {
-                  var _k, _len3, _ref, _results2;
-                  _ref = item.message.split(/\r\n|\r|\n/);
+                  var _l, _len4, _ref2, _results2;
+                  _ref2 = item.message.split(/\r\n|\r|\n/);
                   _results2 = [];
-                  for (_k = 0, _len3 = _ref.length; _k < _len3; _k++) {
-                    msg = _ref[_k];
+                  for (_l = 0, _len4 = _ref2.length; _l < _len4; _l++) {
+                    msg = _ref2[_l];
                     _results2.push(this.putResult("# " + msg));
                   }
                   return _results2;
@@ -103,16 +110,38 @@
           }
         };
 
-        TAPReporter.prototype.log = function(str) {
-          return this.putResult("# " + str);
+        TAPReporter.prototype.log = function() {
+          var messages, msg, str, _i, _len, _ref, _results;
+          str = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          messages = str.join("\n");
+          _ref = messages.split(/\r\n|\r|\n/);
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            msg = _ref[_i];
+            _results.push(this.putResult("# " + msg));
+          }
+          return _results;
         };
 
-        TAPReporter.diag = function(env, str) {
-          var _ref, _ref2;
-          if (str == null) {
-            _ref = [jasmine.getEnv(), env], env = _ref[0], str = _ref[1];
+        TAPReporter.diag = function() {
+          var env, messages, msg, _i, _j, _len, _len2, _ref, _results, _results2;
+          env = arguments[0], messages = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+          if (env != null ? (_ref = env.reporter) != null ? _ref.log : void 0 : void 0) {
+            _results = [];
+            for (_i = 0, _len = messages.length; _i < _len; _i++) {
+              msg = messages[_i];
+              _results.push(env.reporter.log(msg));
+            }
+            return _results;
+          } else {
+            messages.unshift(env);
+            _results2 = [];
+            for (_j = 0, _len2 = messages.length; _j < _len2; _j++) {
+              msg = messages[_j];
+              _results2.push(jasmine.getEnv().reporter.log(msg));
+            }
+            return _results2;
           }
-          return env != null ? (_ref2 = env.reporter) != null ? _ref2.log(str) : void 0 : void 0;
         };
 
         TAPReporter.todo = function(target, reason) {

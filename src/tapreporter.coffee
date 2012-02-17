@@ -42,7 +42,8 @@
         directive = retrieveTodoDirective spec
         results = spec.results()
         items = results.getItems()
-        @putResult "# #{item.values[0]}" for item in items when item.type is 'log'
+        for item in items when item.type is 'log'
+          @putResult "# #{msg}" for msg in item.values[0].split /\r\n|\r|\n/
         if results.skipped
           @putResult "ok #{++@count} - # SKIP #{spec.__skip_reason or ''}"
         else if results.passed()
@@ -52,11 +53,16 @@
           for item in items when item.type is 'expect' and !item.passed()
             @putResult "# #{msg}" for msg in item.message.split /\r\n|\r|\n/
 
-      log: (str) -> @putResult "# #{str}"
+      log: (str...) ->
+        messages = str.join "\n"
+        @putResult "# #{msg}" for msg in messages.split /\r\n|\r|\n/
 
-      @diag: (env, str) ->
-        [env, str] = [jasmine.getEnv(), env] unless str?
-        env?.reporter?.log str
+      @diag: (env, messages...) ->
+        if env?.reporter?.log
+          env.reporter.log msg for msg in messages
+        else
+          messages.unshift env
+          jasmine.getEnv().reporter.log msg for msg in messages
 
       @todo: (target, reason) ->
         target?.__todo_directive = " # TODO #{reason}"

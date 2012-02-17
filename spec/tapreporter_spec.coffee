@@ -109,6 +109,40 @@ describe 'TAPReporter', ->
       expect(tapreporter.getResults()[4]).toEqual 'ok 3 - test suite should be ok 3.'
       expect(tapreporter.getResults()[5]).toEqual '1..3'
 
+    it 'should be able to recieve multi-line string', ->
+
+      env.describe 'test suite', ->
+        env.it 'should be ok 1', ->
+          env.reporter.log """
+                           log message 1
+                           log message 2
+                           log message 3
+                           """
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 5
+      expect(tapreporter.getResults()[0]).toEqual '# log message 1'
+      expect(tapreporter.getResults()[1]).toEqual '# log message 2'
+      expect(tapreporter.getResults()[2]).toEqual '# log message 3'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 1 - test suite should be ok 1.'
+      expect(tapreporter.getResults()[4]).toEqual '1..1'
+
+    it 'should be able to recieve variable arguments', ->
+
+      env.describe 'test suite', ->
+        env.it 'should be ok 1', ->
+          env.reporter.log "log message 1", "log message 2", "log message 3"
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 5
+      expect(tapreporter.getResults()[0]).toEqual '# log message 1'
+      expect(tapreporter.getResults()[1]).toEqual '# log message 2'
+      expect(tapreporter.getResults()[2]).toEqual '# log message 3'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 1 - test suite should be ok 1.'
+      expect(tapreporter.getResults()[4]).toEqual '1..1'
+
   describe 'jasmine.log (Spec.log)', ->
 
     it 'should add a diagnostic line', ->
@@ -131,6 +165,38 @@ describe 'TAPReporter', ->
       expect(tapreporter.getResults()[3]).toEqual 'ok 2 - test suite should be ok 2.'
       expect(tapreporter.getResults()[4]).toEqual 'ok 3 - test suite should be ok 3.'
       expect(tapreporter.getResults()[5]).toEqual '1..3'
+
+    it 'should be able to recieve multi-line string', ->
+
+      env.describe 'test suite', ->
+        env.it 'should be ok 1', ->
+          @log """
+               log message 1
+               log message 2
+               log message 3
+               """
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 5
+      expect(tapreporter.getResults()[0]).toEqual '# log message 1'
+      expect(tapreporter.getResults()[1]).toEqual '# log message 2'
+      expect(tapreporter.getResults()[2]).toEqual '# log message 3'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 1 - test suite should be ok 1.'
+      expect(tapreporter.getResults()[4]).toEqual '1..1'
+
+    it 'can not recieve variable arguments', ->
+
+      env.describe 'test suite', ->
+        env.it 'should be ok 1', ->
+          @log "log message 1", "log message 2", "log message 3"
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 3
+      expect(tapreporter.getResults()[0]).toEqual '# log message 1'
+      expect(tapreporter.getResults()[1]).toEqual 'ok 1 - test suite should be ok 1.'
+      expect(tapreporter.getResults()[2]).toEqual '1..1'
 
   describe '::diag', ->
 
@@ -159,6 +225,46 @@ describe 'TAPReporter', ->
       expect(tapreporter.getResults()[3]).toEqual 'ok 2 - test suite should be ok 2.'
       expect(tapreporter.getResults()[4]).toEqual 'ok 3 - test suite should be ok 3.'
       expect(tapreporter.getResults()[5]).toEqual '1..3'
+
+    it 'should be able to recieve multi-line string', ->
+
+      env.describe 'test suite', ->
+        env.it 'should be ok 1', ->
+          diag env, """
+                  log message 1
+                  log message 2
+                  log message 3
+                  """
+          diag """
+               [log message 1]
+               [log message 2]
+               [log message 3]
+               """
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 5
+      expect(tapreporter.getResults()[0]).toEqual '# log message 1'
+      expect(tapreporter.getResults()[1]).toEqual '# log message 2'
+      expect(tapreporter.getResults()[2]).toEqual '# log message 3'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 1 - test suite should be ok 1.'
+      expect(tapreporter.getResults()[4]).toEqual '1..1'
+
+    it 'should be able to recieve variable arguments', ->
+
+      env.describe 'test suite', ->
+        env.it 'should be ok 1', ->
+          diag env, "log message 1", "log message 2", "log message 3"
+          diag "[log message 1]", "[log message 2]", "[log message 3]"
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 5
+      expect(tapreporter.getResults()[0]).toEqual '# log message 1'
+      expect(tapreporter.getResults()[1]).toEqual '# log message 2'
+      expect(tapreporter.getResults()[2]).toEqual '# log message 3'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 1 - test suite should be ok 1.'
+      expect(tapreporter.getResults()[4]).toEqual '1..1'
 
   describe '::todo', ->
 
