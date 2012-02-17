@@ -1,4 +1,3 @@
-* impl [Bail out!]
 * add README.md
   * TAPReporter::diag
   * TAPReporter::todo

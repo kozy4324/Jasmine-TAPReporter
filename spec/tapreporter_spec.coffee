@@ -1,5 +1,5 @@
 jasmine = require 'jasmine-node'
-{TAPReporter, todo, skip, diag} = require '../src/tapreporter.coffee'
+{TAPReporter, todo, skip, diag, bailOut} = require '../src/tapreporter.coffee'
 
 describe 'TAPReporter', ->
 
@@ -288,6 +288,25 @@ describe 'TAPReporter', ->
       expect(results[3]).toEqual 'ok 4 - # SKIP reason'
       expect(results[4]).toEqual 'ok 5 - test suite 3 should be ok 1.'
       expect(results[5]).toEqual '1..5'
+
+  describe '::bailOut', ->
+
+    it 'should be [Bail out!] and stop the test execution immediately', ->
+      env.describe 'test suite 1', ->
+        env.it 'should be ok 1', ->
+      env.describe 'test suite 2', ->
+        env.it 'should be ok 1', ->
+          bailOut env, 'reason'
+        env.it 'should be ok 2', ->
+      env.describe 'test suite 3', ->
+        env.it 'should be ok 1', ->
+
+      env.execute()
+      results = tapreporter.getResults()
+      expect(results.length).toEqual 2
+      expect(results[0]).toEqual 'ok 1 - test suite 1 should be ok 1.'
+      expect(results[1]).toEqual 'Bail out! reason'
+
 
 jasmine.getEnv().addReporter new TAPReporter console.log
 jasmine.getEnv().execute()

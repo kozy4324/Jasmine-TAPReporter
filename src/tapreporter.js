@@ -29,7 +29,11 @@
         TAPReporter.prototype.reportRunnerStarting = function(runner) {};
 
         TAPReporter.prototype.reportRunnerResults = function(runner) {
-          return this.putResult("1.." + this.count);
+          if (runner.queue.abort) {
+            return this.putResult("Bail out! " + (runner.__bailOut_reason || ''));
+          } else {
+            return this.putResult("1.." + this.count);
+          }
         };
 
         TAPReporter.prototype.reportSuiteResults = function(suite) {};
@@ -65,6 +69,7 @@
 
         TAPReporter.prototype.reportSpecResults = function(spec) {
           var directive, item, items, msg, results, _i, _j, _len, _len2, _results;
+          if (spec.__bailOut) return;
           directive = retrieveTodoDirective(spec);
           results = spec.results();
           items = results.getItems();
@@ -120,6 +125,27 @@
             if ((_ref = target.results_) != null) _ref.skipped = true;
           }
           return target != null ? target.__skip_reason = reason : void 0;
+        };
+
+        TAPReporter.bailOut = function(env, reason) {
+          var runner, spec, suite, _i, _j, _len, _len2, _ref, _ref2, _ref3;
+          if (reason == null) {
+            _ref = [jasmine.getEnv(), env], env = _ref[0], reason = _ref[1];
+          }
+          runner = env.currentRunner();
+          runner.__bailOut_reason = reason;
+          runner.queue.abort = true;
+          _ref2 = runner.suites();
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            suite = _ref2[_i];
+            suite.queue.abort = true;
+            _ref3 = suite.specs();
+            for (_j = 0, _len2 = _ref3.length; _j < _len2; _j++) {
+              spec = _ref3[_j];
+              spec.queue.abort = true;
+            }
+          }
+          return env.currentSpec.__bailOut = true;
         };
 
         TAPReporter.TAPReporter = TAPReporter;

@@ -15,7 +15,11 @@
 
       reportRunnerStarting: (runner) ->
 
-      reportRunnerResults: (runner) -> @putResult "1..#{@count}"
+      reportRunnerResults: (runner) ->
+        if runner.queue.abort
+          @putResult "Bail out! #{runner.__bailOut_reason or ''}"
+        else
+          @putResult "1..#{@count}"
 
       reportSuiteResults: (suite) ->
 
@@ -34,6 +38,7 @@
         ''
 
       reportSpecResults: (spec) ->
+        return if spec.__bailOut
         directive = retrieveTodoDirective spec
         results = spec.results()
         items = results.getItems()
@@ -59,6 +64,16 @@
       @skip: (target, reason) ->
         target?.results_?.skipped = true
         target?.__skip_reason = reason
+
+      @bailOut: (env, reason) ->
+        [env, reason] = [jasmine.getEnv(), env] unless reason?
+        runner = env.currentRunner()
+        runner.__bailOut_reason = reason
+        runner.queue.abort = true
+        for suite in runner.suites()
+          suite.queue.abort = true
+          spec.queue.abort = true for spec in suite.specs()
+        env.currentSpec.__bailOut = true
 
       @TAPReporter: @
 
