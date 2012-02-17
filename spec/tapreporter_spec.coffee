@@ -1,5 +1,5 @@
 jasmine = require 'jasmine-node'
-{TAPReporter, todo, skip} = require '../src/tapreporter.coffee'
+{TAPReporter, todo, skip, diag} = require '../src/tapreporter.coffee'
 
 describe 'TAPReporter', ->
 
@@ -66,7 +66,7 @@ describe 'TAPReporter', ->
 
       env.execute()
       waits 50
-      jasmine.getEnv().reporter.log 'waits 50 msec...' # message appear immediately
+      diag 'waits 50 msec...' # message appear immediately
       # jasmine.log 'waits 50 msec...' # message will appear at reporter.reportSpecResults
       runs ->
         results = tapreporter.getResults()
@@ -132,7 +132,35 @@ describe 'TAPReporter', ->
       expect(tapreporter.getResults()[4]).toEqual 'ok 3 - test suite should be ok 3.'
       expect(tapreporter.getResults()[5]).toEqual '1..3'
 
-  describe '.todo', ->
+  describe '::diag', ->
+
+    it 'should add a diagnostic line immediately', ->
+
+      # TAPReporter::diag is a wrapper for jasmine.getEnv().reporter.log function.
+      # if a second argument is ommitted, the first argument will be assumed a message
+      # string and will be added to current env.
+      env.describe 'test suite', ->
+        env.it 'should be ok 1', ->
+          @expect(true).toBeTruthy()
+        env.it 'should be ok 2', ->
+          diag env, "log message 1"
+          diag "[log mesasge 1]"
+          @expect(true).toBeTruthy()
+          diag env, "log message 2"
+          diag "[log mesasge 2]"
+        env.it 'should be ok 3', ->
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults().length).toEqual 6
+      expect(tapreporter.getResults()[0]).toEqual 'ok 1 - test suite should be ok 1.'
+      expect(tapreporter.getResults()[1]).toEqual '# log message 1'
+      expect(tapreporter.getResults()[2]).toEqual '# log message 2'
+      expect(tapreporter.getResults()[3]).toEqual 'ok 2 - test suite should be ok 2.'
+      expect(tapreporter.getResults()[4]).toEqual 'ok 3 - test suite should be ok 3.'
+      expect(tapreporter.getResults()[5]).toEqual '1..3'
+
+  describe '::todo', ->
 
     it 'should mark [TODO DIRECTIVE] on current spec', ->
       env.describe 'test suite', ->
@@ -198,7 +226,7 @@ describe 'TAPReporter', ->
       expect(results[4]).toEqual 'ok 5 - test suite 3 should be ok 1.'
       expect(results[5]).toEqual '1..5'
 
-  describe '.skip', ->
+  describe '::skip', ->
 
     it 'should mark [SKIP DIRECTIVE] on current spec', ->
       env.describe 'test suite', ->

@@ -49,6 +49,10 @@
 
       log: (str) -> @putResult "# #{str}"
 
+      @diag: (env, str) ->
+        [env, str] = [jasmine.getEnv(), env] unless str?
+        env?.reporter?.log str
+
       @todo: (target, reason) ->
         target?.__todo_directive = " # TODO #{reason}"
 

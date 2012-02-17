@@ -102,6 +102,14 @@
           return this.putResult("# " + str);
         };
 
+        TAPReporter.diag = function(env, str) {
+          var _ref, _ref2;
+          if (str == null) {
+            _ref = [jasmine.getEnv(), env], env = _ref[0], str = _ref[1];
+          }
+          return env != null ? (_ref2 = env.reporter) != null ? _ref2.log(str) : void 0 : void 0;
+        };
+
         TAPReporter.todo = function(target, reason) {
           return target != null ? target.__todo_directive = " # TODO " + reason : void 0;
         };
