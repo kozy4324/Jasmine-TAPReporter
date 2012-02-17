@@ -1,2 +1,5 @@
 * impl [Bail out!]
-* add #todo and #skip to README.md
+* add README.md
+  * TAPReporter::diag
+  * TAPReporter::todo
+  * TAPReporter::skip
