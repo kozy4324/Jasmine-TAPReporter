@@ -413,6 +413,38 @@ describe 'TAPReporter', ->
       expect(results[0]).toEqual 'ok 1 - test suite 1 should be ok 1.'
       expect(results[1]).toEqual 'Bail out! reason'
 
+  describe 'console color enable', ->
+    [env, tapreporter] = []
+
+    beforeEach ->
+      env = new jasmine.Env()
+      env.updateInterval = 0
+      tapreporter = new TAPReporter(null, true)
+      env.addReporter tapreporter
+
+    it 'should effect passwd line', ->
+      env.describe 'test suite', ->
+        env.it 'should be ok', ->
+          @expect(true).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults()[0]).toEqual '\033[36mok\033[0m 1 - test suite should be ok.'
+
+    it 'should effect skipped line', ->
+      env.describe 'test suite', ->
+        env.it 'should be ok', ->
+          skip @, 'reason 1'
+
+      env.execute()
+      expect(tapreporter.getResults()[0]).toEqual '\033[33mok\033[0m 1 - # SKIP reason 1'
+
+    it 'should effect failed line', ->
+      env.describe 'test suite', ->
+        env.it 'should be ok', ->
+          @expect(false).toBeTruthy()
+
+      env.execute()
+      expect(tapreporter.getResults()[0]).toEqual '\033[31mnot ok\033[0m 1 - test suite should be ok.'
 
 jasmine.getEnv().addReporter new TAPReporter console.log
 jasmine.getEnv().execute()
