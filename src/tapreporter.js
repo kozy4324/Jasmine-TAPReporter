@@ -1,34 +1,32 @@
 (function() {
-  'use strict';
-  var __hasProp = Object.prototype.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor; child.__super__ = parent.prototype; return child; },
-    __slice = Array.prototype.slice;
-
+  'use strict';  var __hasProp = Object.prototype.hasOwnProperty, __extends = function(child, parent) {
+    for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; }
+    function ctor() { this.constructor = child; }
+    ctor.prototype = parent.prototype;
+    child.prototype = new ctor;
+    child.__super__ = parent.prototype;
+    return child;
+  }, __slice = Array.prototype.slice;
   (function(define) {
     return define([], function() {
       var TAPReporter;
-      TAPReporter = (function(_super) {
+      TAPReporter = (function() {
         var retrieveTodoDirective;
-
-        __extends(TAPReporter, _super);
-
-        function TAPReporter(print) {
+        __extends(TAPReporter, jasmine.Reporter);
+        function TAPReporter(print, color) {
           this.print = print;
+          this.color = color != null ? color : false;
           this.results_ = [];
           this.count = 0;
         }
-
         TAPReporter.prototype.getResults = function() {
           return this.results_;
         };
-
         TAPReporter.prototype.putResult = function(result) {
           this.results_.push(result);
           return typeof this.print === "function" ? this.print(result) : void 0;
         };
-
         TAPReporter.prototype.reportRunnerStarting = function(runner) {};
-
         TAPReporter.prototype.reportRunnerResults = function(runner) {
           if (runner.queue.abort) {
             return this.putResult("Bail out! " + (runner.__bailOut_reason || ''));
@@ -36,9 +34,7 @@
             return this.putResult("1.." + this.count);
           }
         };
-
         TAPReporter.prototype.reportSuiteResults = function(suite) {};
-
         TAPReporter.prototype.reportSpecStarting = function(spec) {
           var parent, _results;
           parent = {
@@ -46,31 +42,30 @@
           };
           _results = [];
           while ((parent = parent.parentSuite) != null) {
-            if (parent.__skip_reason) {
-              spec.results_.skipped = true;
-              _results.push(spec.__skip_reason = parent.__skip_reason);
-            } else {
-              _results.push(void 0);
-            }
+            _results.push(parent.__skip_reason ? (spec.results_.skipped = true, spec.__skip_reason = parent.__skip_reason) : void 0);
           }
           return _results;
         };
-
         retrieveTodoDirective = function(spec) {
           var parent;
-          if (spec.__todo_directive) return spec.__todo_directive;
+          if (spec.__todo_directive) {
+            return spec.__todo_directive;
+          }
           parent = {
             parentSuite: spec.suite
           };
           while ((parent = parent.parentSuite) != null) {
-            if (parent.__todo_directive) return parent.__todo_directive;
+            if (parent.__todo_directive) {
+              return parent.__todo_directive;
+            }
           }
           return '';
         };
-
         TAPReporter.prototype.reportSpecResults = function(spec) {
-          var directive, item, items, msg, results, _i, _j, _k, _len, _len2, _len3, _ref, _results;
-          if (spec.__bailOut) return;
+          var directive, item, items, msg, results, status, _i, _j, _k, _len, _len2, _len3, _ref, _results;
+          if (spec.__bailOut) {
+            return;
+          }
           directive = retrieveTodoDirective(spec);
           results = spec.results();
           items = results.getItems();
@@ -85,11 +80,14 @@
             }
           }
           if (results.skipped) {
-            return this.putResult("ok " + (++this.count) + " - # SKIP " + (spec.__skip_reason || ''));
+            status = this.color ? '\u001b[33mok\u001b[0m' : 'ok';
+            return this.putResult("" + status + " " + (++this.count) + " - # SKIP " + (spec.__skip_reason || ''));
           } else if (results.passed()) {
-            return this.putResult("ok " + (++this.count) + " - " + (spec.getFullName()) + directive);
+            status = this.color ? '\u001b[36mok\u001b[0m' : 'ok';
+            return this.putResult("" + status + " " + (++this.count) + " - " + (spec.getFullName()) + directive);
           } else {
-            this.putResult("not ok " + (++this.count) + " - " + (spec.getFullName()) + directive);
+            status = this.color ? '\u001b[31mnot ok\u001b[0m' : 'ok';
+            this.putResult("" + status + " " + (++this.count) + " - " + (spec.getFullName()) + directive);
             _results = [];
             for (_k = 0, _len3 = items.length; _k < _len3; _k++) {
               item = items[_k];
@@ -109,7 +107,6 @@
             return _results;
           }
         };
-
         TAPReporter.prototype.log = function() {
           var messages, msg, str, _i, _len, _ref, _results;
           str = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
@@ -122,7 +119,6 @@
           }
           return _results;
         };
-
         TAPReporter.diag = function() {
           var env, messages, msg, _i, _j, _len, _len2, _ref, _results, _results2;
           env = arguments[0], messages = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
@@ -143,19 +139,18 @@
             return _results2;
           }
         };
-
         TAPReporter.todo = function(target, reason) {
           return target != null ? target.__todo_directive = " # TODO " + reason : void 0;
         };
-
         TAPReporter.skip = function(target, reason) {
           var _ref;
           if (target != null) {
-            if ((_ref = target.results_) != null) _ref.skipped = true;
+            if ((_ref = target.results_) != null) {
+              _ref.skipped = true;
+            }
           }
           return target != null ? target.__skip_reason = reason : void 0;
         };
-
         TAPReporter.bailOut = function(env, reason) {
           var runner, spec, suite, _i, _j, _len, _len2, _ref, _ref2, _ref3;
           if (reason == null) {
@@ -176,12 +171,9 @@
           }
           return env.currentSpec.__bailOut = true;
         };
-
         TAPReporter.TAPReporter = TAPReporter;
-
         return TAPReporter;
-
-      })(jasmine.Reporter);
+      })();
       return TAPReporter;
     });
   })(typeof define !== 'undefined' ? define : typeof module !== 'undefined' ? function(deps, factory) {
@@ -189,5 +181,4 @@
   } : function(deps, factory) {
     return this['TAPReporter'] = factory();
   });
-
 }).call(this);
