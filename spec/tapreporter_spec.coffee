@@ -446,5 +446,5 @@ describe 'TAPReporter', ->
       env.execute()
       #expect(tapreporter.getResults()[0]).toEqual '\033[31mnot ok\033[0m 1 - test suite should be ok.'
 
-jasmine.getEnv().addReporter new TAPReporter console.log
+jasmine.getEnv().addReporter new TAPReporter console.log, true
 jasmine.getEnv().execute()
