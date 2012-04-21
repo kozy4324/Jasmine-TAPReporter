@@ -1,4 +1,3 @@
-'use strict'
 ((define) ->
   define [], ->
     class TAPReporter extends jasmine.Reporter
